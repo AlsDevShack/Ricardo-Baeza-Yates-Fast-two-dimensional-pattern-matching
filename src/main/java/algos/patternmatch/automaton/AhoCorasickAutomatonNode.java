@@ -83,12 +83,52 @@ public class AhoCorasickAutomatonNode<T>  {
         return result;
     }
 
+    public int addWord(Queue<T> word){
+        addedWordsCounter++;
+        return addWordC(word, addedWordsCounter, 1);
+    }
+
+    public int addWordC(Queue<T> word, int wordCount, int set){
+        T val = word.remove();
+        AhoCorasickAutomatonNode<T> n = getChild(val);
+        if( n == null){
+            n = new AhoCorasickAutomatonNode(val);
+            setChild(n);
+        }
+        if(!word.isEmpty()) return n.addWordC(word, wordCount, set);
+        else{
+            if(!n.isEnd()) {
+                n.setEnd(true);
+                n.setRecognisedPatternNum(wordCount);
+            } else {
+                return n.getRecognisedPatternNum();
+            }
+            return wordCount;
+        }
+    }
+
     public AhoCorasickAutomatonNode<T> getRoot(){
         AhoCorasickAutomatonNode<T> root = this;
         while(root.getValue() != null){
             root = root.getParent();
         }
         return root;
+    }
+
+    private void setChild(AhoCorasickAutomatonNode<T> child){
+        child.setParent(this);
+        children.put(child.getValue(), child);
+    }
+
+    private int countParents(AhoCorasickAutomatonNode<T> node){
+        AhoCorasickAutomatonNode<T> buff = node;
+        int parents = -1;
+        while(buff != null){
+            buff = buff.getParent();
+            parents++;
+        }
+        return parents;
+
     }
 
     private AhoCorasickAutomatonNode<T> getParent() {
@@ -139,47 +179,7 @@ public class AhoCorasickAutomatonNode<T>  {
         this.recognisedPatternNum = recognisedPatternNum;
     }
 
-    public int addWord(Queue<T> word){
-        addedWordsCounter++;
-        return addWordC(word, addedWordsCounter, 1);
-    }
-
-    public int addWordC(Queue<T> word, int wordCount, int set){
-        T val = word.remove();
-        AhoCorasickAutomatonNode<T> n = getChild(val);
-        if( n == null){
-            n = new AhoCorasickAutomatonNode(val);
-            setChild(n);
-        }
-        if(!word.isEmpty()) return n.addWordC(word, wordCount, set);
-        else{
-            if(!n.isEnd()) {
-                n.setEnd(true);
-                n.setRecognisedPatternNum(wordCount);
-            } else {
-                return n.getRecognisedPatternNum();
-            }
-            return wordCount;
-        }
-    }
-
     public Integer getRecognisedPatternNum() {
         return recognisedPatternNum;
-    }
-
-    private void setChild(AhoCorasickAutomatonNode<T> child){
-        child.setParent(this);
-        children.put(child.getValue(), child);
-    }
-
-    private int countParents(AhoCorasickAutomatonNode<T> node){
-        AhoCorasickAutomatonNode<T> buff = node;
-        int parents = -1;
-        while(buff != null){
-            buff = buff.getParent();
-            parents++;
-        }
-        return parents;
-
     }
 }
